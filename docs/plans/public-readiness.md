@@ -1,6 +1,6 @@
 # Plan: public readiness
 
-Status: 2026-10-21. Decided: package name stays `Fantasy-Map-Generator-Swift`; licence MIT, as the original; first tag `0.1.0`. Done (uncommitted at the time of writing): `LICENSE`, README credit and status, the programming guide. Remaining: downscale the images, fix the test warnings, and the final preflight on the snapshot below. Nothing here publishes anything. The repository stays private, has no remote, and nothing is pushed or tagged until the author says so.
+Status: published 2026-10-21 at https://github.com/codelynx/Fantasy-Map-Generator-Swift (public, one-commit snapshot of the final state, tag `0.1.0`). Decided: package name stays `Fantasy-Map-Generator-Swift`; licence MIT, as the original; first tag `0.1.0`. Done: `LICENSE`, README credit, thanks and status, the programming guide, the large images reduced, the test warnings fixed, the final preflight on the snapshot. Remaining, all optional: a GitHub Release page for `0.1.0`, a Linux build and test job, a note to the original's author (the author's own to send).
 
 ## What
 
@@ -60,7 +60,5 @@ Following from the snapshot: the session links and the co-author lines are in th
 
 ## Order of work
 
-1. Done: the saved pin layer, the licence, README and guide, the inventory, a preflight rehearsal (2026-10-21).
-2. Fix the three compiler warnings in the drawing tests; downscale the large images.
-3. The author checks the pins in the demo by eye.
-4. Prepare the exact candidate commit (the snapshot), then run the preflight on it from an empty build directory.
+1. Done 2026-10-21: the saved pin layer, the licence, README and guide, the inventory, the preflight rehearsal, the images, the test warnings, the author's own check of the pins in the demo, the snapshot, the final preflight on it, publication and the `0.1.0` tag.
+2. Optional: a GitHub Release page, a Linux build and test job, a note to the original's author.

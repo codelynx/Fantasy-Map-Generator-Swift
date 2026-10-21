@@ -6,7 +6,7 @@ Requires macOS 14 or iOS 17, Swift 6. `FantasyMapKit` makes and saves maps and h
 
 ## Add it
 
-    .package(path: "../Fantasy-Map-Generator-Swift")   // a URL and a version once the repository is public
+    .package(url: "https://github.com/codelynx/Fantasy-Map-Generator-Swift", from: "0.1.0")
 
 then add the products `FantasyMapKit` and `FantasyMapKitUI` to your target.
 
