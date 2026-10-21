@@ -1,0 +1,63 @@
+{
+  "algorithmRevision" : 1,
+  "entries" : [
+    {
+      "cellStructureSha256" : "9ec5bb8bd2a33b824ff7670bedd01be92cdadda460ce678558a99d2f17b22d2d",
+      "cells" : 9954,
+      "cellsDesired" : 10000,
+      "coastStateIsNotWhatAFreshMarkingGives" : true,
+      "elevationLimit" : 20,
+      "featureIdsSha256" : "9eb4ae7b22bee637d6309dd65e901082271b587507401efc148d85d6176a0355",
+      "features" : 30,
+      "file" : "map-highIsland-10000-limit20.json",
+      "fileSha256" : "a6efa8956e55a29969a564e7db777e4f85c83ca3e601136cb11b769e70888d6a",
+      "hasRetainedOpenedLakeRecord" : true,
+      "height" : 800,
+      "heightsSha256" : "6ca0d6809a88142600501753192fda3a7e4f164687688fc5b42b2dd1a71aa764",
+      "originalCellStructureSha256" : "9ec5bb8bd2a33b824ff7670bedd01be92cdadda460ce678558a99d2f17b22d2d",
+      "seed" : "kaz-1",
+      "template" : "highIsland",
+      "vertexPointsSha256" : "8adbe3b51e5054018abc38ff4c74e22668441851302db477327cfdce5b17f2c1",
+      "width" : 1280
+    },
+    {
+      "cellStructureSha256" : "ed8118e86d54d7f26d2afc607a9bbccbcb5ddc897b5d5cdcfaff398b7e94e03b",
+      "cells" : 1000,
+      "cellsDesired" : 1000,
+      "coastStateIsNotWhatAFreshMarkingGives" : true,
+      "elevationLimit" : 5,
+      "featureIdsSha256" : "7133b331ba20bacb93fdc9cc0b3a9c075b340173697bb65146c9b6c876abb046",
+      "features" : 10,
+      "file" : "map-highIsland-1000-limit5.json",
+      "fileSha256" : "cb9bb8d739e0349426a6e44a48213c65d258c7d1840c02404d38c09931531120",
+      "hasRetainedOpenedLakeRecord" : true,
+      "height" : 800,
+      "heightsSha256" : "5d8671f55e670abb421136de46386bf0866d47cb158d7f2a9d7da45c8668c815",
+      "originalCellStructureSha256" : "ed8118e86d54d7f26d2afc607a9bbccbcb5ddc897b5d5cdcfaff398b7e94e03b",
+      "seed" : "é",
+      "template" : "highIsland",
+      "vertexPointsSha256" : "926fbd9dddcaaf1ce6e9cb8bb1ab25f42fc5738d5c17b3e1a05d19d3967f0199",
+      "width" : 1280
+    },
+    {
+      "cellStructureSha256" : "fa641e054a49588a1e1fe855fdcbaed86aac1ebdbff61004a474b0eb8eecbf3b",
+      "cells" : 290,
+      "cellsDesired" : 300,
+      "coastStateIsNotWhatAFreshMarkingGives" : true,
+      "elevationLimit" : 20,
+      "featureIdsSha256" : "8cf7ff2d2d93d001df26f69b2340131f51b5538ea66ea474c3d1bed6c716ca60",
+      "features" : 4,
+      "file" : "map-highIsland-300-limit20.json",
+      "fileSha256" : "3a0d6599a96c1b3243780484b859a24e201503725a0f438790eda46a5ac6cc3b",
+      "hasRetainedOpenedLakeRecord" : true,
+      "height" : 90,
+      "heightsSha256" : "465bc443106862aa0032ddf96aeae3137f172236264dd13d978378945d8cddb1",
+      "originalCellStructureSha256" : "fa641e054a49588a1e1fe855fdcbaed86aac1ebdbff61004a474b0eb8eecbf3b",
+      "seed" : "wide",
+      "template" : "highIsland",
+      "vertexPointsSha256" : "f2275347c33d60b8816ad2457c6cafa7c98f3a03bf6e121cb7e97ffd8c34befe",
+      "width" : 1000
+    }
+  ],
+  "formatVersion" : 1
+}

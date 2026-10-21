@@ -1,0 +1,40 @@
+{
+  "algorithmRevision" : 1,
+  "entries" : [
+    {
+      "cellsDesired" : 600,
+      "erosion" : true,
+      "file" : "water-0-highIsland-600.json",
+      "fileSha256" : "4793fd79bdcc851d59a3b70a55dffe30e98038a3acefca6da4c1ec6a04e68b89",
+      "height" : 400,
+      "key" : "highIsland",
+      "lakesWithInlets" : 2,
+      "limit" : 20,
+      "packedCellStructureSha256" : "ba7bba84925d8a8f4a007c9f2175e305956d252488d080ce66a8439e82ec9fc3",
+      "packedCells" : 610,
+      "rain" : 100,
+      "rivers" : 26,
+      "seed" : "mid",
+      "steps" : 250,
+      "width" : 640
+    },
+    {
+      "cellsDesired" : 600,
+      "erosion" : false,
+      "file" : "water-1-archipelago-600.json",
+      "fileSha256" : "61b56ab4e6d44f45f1de9308e88135ca9548ccab719aecb22643090369746155",
+      "height" : 400,
+      "key" : "archipelago",
+      "lakesWithInlets" : 1,
+      "limit" : 20,
+      "packedCellStructureSha256" : "db4dab7b1cbef6144987a044ffd1a93964144cf0d2abd5a2e4b4acf69665cc8d",
+      "packedCells" : 645,
+      "rain" : 100,
+      "rivers" : 20,
+      "seed" : "mid",
+      "steps" : 250,
+      "width" : 640
+    }
+  ],
+  "formatVersion" : 1
+}
