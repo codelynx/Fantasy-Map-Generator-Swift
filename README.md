@@ -26,7 +26,7 @@ Using the libraries in your own app: [docs/programming-guide.md](docs/programmin
 
     swift run -c release FantasyMapDemo
 
-opens a small SwiftUI window (macOS) with a seed field, an optional **diagnostic realms overlay** (territories, seeds and crossing links drawn on the raw cells, with the reach, the count and the growth settings on sliders; not the final territory drawing), the land shapes, the number of cells, coast smoothing, an optional rough coast and buttons to save the picture (PNG) and the map (the package's JSON). Release mode is much faster than debug for large maps. It is a demo target that uses the two libraries; the libraries do not use it, and apps use them directly (`FantasyMapCore` for the data, `FantasyMapKit` for the picture). A SwiftPM executable is not an app bundle, so the window has no custom icon and menus are minimal.
+opens a small SwiftUI window (macOS) with **all the map's controls in one box** (`MapControls`, the same view an app can use): the seed and land shape, the number of cells, the coast, the rivers, the realms and the pins. It also has an optional **diagnostic realms overlay** (territories, seeds and crossing links drawn on the raw cells; not the final territory drawing) and buttons to save the picture (PNG) and the map (the package's JSON). Release mode is much faster than debug for large maps. It is a demo target that uses the two libraries; the libraries do not use it, and apps use them directly (`FantasyMapCore` for the data, `FantasyMapKit` for the picture). A SwiftPM executable is not an app bundle, so the window has no custom icon and menus are minimal.
 
 ## Thanks
 

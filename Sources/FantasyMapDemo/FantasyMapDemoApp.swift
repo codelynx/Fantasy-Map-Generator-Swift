@@ -10,35 +10,23 @@ import FantasyMapCore
 import FantasyMapKit
 import SwiftUI
 
-/// What the controls hold. Hashable so that `.task(id:)` rebuilds the map whenever anything changes.
+/// What the controls hold: the package's `MapSettings` (edited by `MapControls`) and the demo's own diagnostic switches. Hashable so that `.task(id:)` makes the map again
+/// whenever a setting that makes or draws it changes.
 struct DemoSettings: Hashable {
-	var seed = "kaz-1"
-	var template = "continents"
-	var cells = 10_000
-	var smoothing = 2
-	var roughness = false
-	var amplitude = 0.75
-	var variant = 0
-	var inkWidth = 1.5
-	// water: rivers drawn from a water map made from the land map
-	var showRivers = false
-	var riverScale = 1.0
-	// realms (diagnostic): explicit values, no hidden defaults inside the package
-	var showRealms = false
-	/// With realms on: the picture's own wash and borders (follow the coast), and the raw-cell diagnostic overlay.
-	var realmPicture = true
+	var map = MapSettings()
+	/// The raw-cell diagnostic overlay of the realms, with its seeds and crossing links.
 	var realmOverlay = false
-	var reach = 25.0
-	var automaticCount = true
-	var realmCount = 8
-	var realmSeed = "realms-1"
-	var typicalArea = 40_000.0
-	var hillFactor = 3.0
-	var mountainFactor = 8.0
-	var crossingFactor = 4.0
-	var unevenness = 3.0
 	var showSeeds = true
 	var showLinks = true
+
+	init() { map.seed = "kaz-1" }
+
+	/// What decides the map and its picture: **not the next pin's marker and colour**, which change no map.
+	var making: DemoSettings {
+		var s = self
+		s.map.pin = MapSettings.Pin()
+		return s
+	}
 }
 
 /// One raw cell polygon coloured by its realm: a diagnostic rendering of the cells, **not** the coast-aligned territory drawing.
@@ -70,30 +58,12 @@ struct DemoResult: Sendable {
 }
 
 enum Maker {
-	/// The style the settings ask for.
-	static func style(for s: DemoSettings) throws -> MapStyle {
-		var style = MapStyle.standard
-		style.smoothing = s.smoothing
-		style.inkWidth = s.inkWidth
-		if s.roughness {
-			var r = RoughnessSettings()
-			r.baseAmplitude = s.amplitude
-			r.variant = s.variant
-			try r.validate()
-			style.roughness = r
-		}
-		style.riverWidthScale = s.riverScale
-		style.showRealms = s.realmPicture
-		return style
-	}
-
 	/// A map or water map read from a file, drawn with the settings' style: **its realms are drawn with the colours saved with them.**
 	static func open(_ data: Data, settings s: DemoSettings, name: String, identity: String) throws -> DemoResult {
-		let style = try Self.style(for: s)
 		var water: WaterMap?
 		let map: LandMap
 		if let w = try? WaterMap(decoding: data) { water = w; map = w.land } else { map = try LandMap(decoding: data) }
-		let drawing = water.map { MapDrawing(water: $0, style: style) } ?? MapDrawing(map: map, style: style)
+		let drawing = water.map { MapDrawing(water: $0, style: s.map.style) } ?? MapDrawing(map: map, style: s.map.style)
 		var summary = "opened \(name): \(map.heights.count) cells"
 		if let water { summary += ", \(water.rivers.count) rivers" }
 		if let layer = map.realms {
@@ -106,60 +76,62 @@ enum Maker {
 		return DemoResult(map: map, water: water, drawing: drawing, identity: identity, fingerprint: map.fingerprint, summary: summary, overlay: nil, realmMessage: nil)
 	}
 
-	/// Generates the map and builds its drawing (off the main thread, called from a detached task).
+	/// Makes the map the settings describe and its drawing (off the main thread, called from a detached task): the land, its realms with their colours saved, and, when
+	/// the rivers are shown, its water. The settings are checked first, and a refusal is shown in words.
 	static func make(_ s: DemoSettings) throws -> DemoResult {
-		guard let template = HeightmapTemplate.named(s.template) else { throw DemoError.message("no land shape named \(s.template)") }
+		let m = s.map
+		try m.validate()
 		let t0 = Date()
-		var map = try LandMap.generate(seed: s.seed, cellsDesired: s.cells, template: template)
+		let water: WaterMap?
+		let map: LandMap
+		if m.rivers.shown {
+			let made = try WaterMap.generate(settings: m)
+			(water, map) = (made, made.land)
+		} else {
+			guard let template = HeightmapTemplate.named(m.landShape) else { throw MapSettings.Problem.invalid("landShape") }
+			map = try LandMap.generate(seed: m.seed, cellsDesired: m.cells, template: template).addingRealms(settings: m.realms, style: m.style)
+			water = nil
+		}
 		let t1 = Date()
-		let style = try Self.style(for: s)
-		// the realms first: with the picture on, they are attached to the map as its realm layer, with the colours they are drawn in, so that saving the map keeps
-		// them and opening it again shows the same picture
-		var overlay: RealmOverlay?
-		var realmMessage: String?
-		if s.showRealms {
-			let made = realms(for: map, s)
-			(overlay, realmMessage) = (made.overlay, made.message)
-			if s.realmPicture, let ownership = made.ownership, let recipe = made.recipe {
-				do {
-					let colours = try MapDrawing.resolvedRealmColors(for: map, ownership: ownership, style: style)
-					map = try map.adding(RealmLayer(ownership: ownership, recipe: recipe, colors: colours))
-				} catch { realmMessage = "no realm picture: \(error)" }
-			}
-		}
-		var water: WaterMap?
-		var waterNote = ""
-		let tw0 = Date()
-		if s.showRivers { water = try WaterMap.generate(land: map) }
-		let drawing = water.map { MapDrawing(water: $0, style: style) } ?? MapDrawing(map: map, style: style)
-		if let water {
-			waterNote = "; water \(Int(Date().timeIntervalSince(tw0) * 1000)) ms: \(water.rivers.count) rivers, \(drawing.rivers.count) drawn"
-			if drawing.riversInWater > 0 { waterNote += ", \(drawing.riversInWater) wholly in drawn water" }
-			if drawing.riversSkipped > 0 { waterNote += ", \(drawing.riversSkipped) skipped" }
-		}
+		let drawing = water.map { MapDrawing(water: $0, settings: m) } ?? MapDrawing(map: map, style: m.style)
 		let t2 = Date()
 		let land = map.heights.filter { Heights.isLand($0) }.count
-		var summary = "\(map.heights.count) cells, \(land * 100 / max(map.heights.count, 1))% land; generate \(Int(t1.timeIntervalSince(t0) * 1000)) ms, draw \(Int(t2.timeIntervalSince(t1) * 1000)) ms\(waterNote)"
-		if s.roughness {
+		var summary = "\(map.heights.count) cells, \(land * 100 / max(map.heights.count, 1))% land; made in \(Int(t1.timeIntervalSince(t0) * 1000)) ms (land, realms\(water == nil ? "" : " and water")), drawn in \(Int(t2.timeIntervalSince(t1) * 1000)) ms"
+		if let water {
+			summary += "; \(water.rivers.count) rivers, \(drawing.rivers.count) drawn"
+			if drawing.riversInWater > 0 { summary += ", \(drawing.riversInWater) wholly in drawn water" }
+			if drawing.riversSkipped > 0 { summary += ", \(drawing.riversSkipped) skipped" }
+		}
+		if m.coast.rough {
 			switch drawing.coast.roughness {
 			case .applied: summary += "; roughness applied"
 			case .fellBack(let reason): summary += "; roughness fell back to the smoothed coast (\(reason))"
 			case .off: break
 			}
 		}
+		// the realms of the picture, and, when asked, the diagnostic overlay made from the same settings
+		var overlay: RealmOverlay?
+		var realmMessage: String?
+		if s.realmOverlay {
+			let made = realms(for: map, m.realms)
+			(overlay, realmMessage) = (made.overlay, made.message)
+		} else if let layer = map.realms {
+			realmMessage = "\(layer.ownership.realms.count) realms, \(layer.recipe.chosenCount == nil ? "automatic" : "chosen") count"
+		}
 		// the geography decides the identity: the seed, the land shape and the number of cells; colours, line widths, rivers and realms are presentation
-		return DemoResult(map: map, water: water, drawing: drawing, identity: "\(s.seed)|\(s.template)|\(s.cells)", fingerprint: map.fingerprint, summary: summary, overlay: overlay, realmMessage: realmMessage)
+		return DemoResult(map: map, water: water, drawing: drawing, identity: "\(m.seed)|\(m.landShape)|\(m.cells)", fingerprint: map.fingerprint, summary: summary, overlay: overlay, realmMessage: realmMessage)
 	}
 
-	/// The realms of the map: the groups for the reach, the seeds for the count, the growth, and a diagnostic overlay of raw cell
-	/// polygons coloured by owner. A refusal is reported in words, not hidden.
-	static func realms(for map: LandMap, _ s: DemoSettings) -> (overlay: RealmOverlay?, message: String, ownership: RealmOwnership?, recipe: RealmRecipe?) {
+	/// The diagnostic overlay of the realms: the groups for the reach, the seeds for the count, and raw cell polygons coloured by owner, made from the same realm settings the
+	/// picture used. A refusal is reported in words, not hidden.
+	static func realms(for map: LandMap, _ r: MapSettings.Realms) -> (overlay: RealmOverlay?, message: String) {
 		do {
-			let groups = try LandGroups.find(in: map, reach: s.reach)
-			let policy = RealmPolicy(typicalRealmArea: s.typicalArea, maximumRealms: 500)
-			let seeds = try RealmSeeds.place(in: map, groups: groups, count: s.automaticCount ? .automatic : .chosen(s.realmCount), realmSeed: s.realmSeed, policy: policy)
-			let growth = GrowthPolicy(hillFactor: s.hillFactor, mountainFactor: s.mountainFactor, crossingFactor: s.crossingFactor, unevenness: s.unevenness)
-			let ownership = try RealmOwnership.grow(in: map, groups: groups, seeds: seeds, realmSeed: s.realmSeed, policy: growth)
+			let realmSeed = r.seed ?? map.seed
+			let groups = try LandGroups.find(in: map, reach: r.reach)
+			let policy = RealmPolicy(typicalRealmArea: r.typicalArea, maximumRealms: RealmDefaults.maximumRealms)
+			let seeds = try RealmSeeds.place(in: map, groups: groups, count: r.count.map { .chosen($0) } ?? .automatic, realmSeed: realmSeed, policy: policy)
+			let growth = GrowthPolicy(hillFactor: r.hillFactor, mountainFactor: r.mountainFactor, crossingFactor: r.crossingFactor, unevenness: r.unevenness)
+			let ownership = try RealmOwnership.grow(in: map, groups: groups, seeds: seeds, realmSeed: realmSeed, policy: growth)
 			let problems = RealmOwnership.problems(in: ownership, groups: groups, seeds: seeds, neighbours: map.voronoi.cells.c)
 			let v = map.voronoi
 			var cells: [RealmCellShape] = []
@@ -168,14 +140,13 @@ enum Maker {
 				if polygon.count >= 3 { cells.append(RealmCellShape(points: polygon, realm: Int(ownership.owner[cell]))) }
 			}
 			let sizes = ownership.realms.map(\.cellCount)
-			var message = "\(groups.landmasses.count) landmasses, \(groups.minimumRealms) groups at reach \(Int(s.reach)); \(seeds.resolvedCount) realms (\(s.automaticCount ? "automatic" : "chosen")); realm sizes \(sizes.min() ?? 0) to \(sizes.max() ?? 0) cells"
+			var message = "\(groups.landmasses.count) landmasses, \(groups.minimumRealms) groups at reach \(Int(r.reach)); \(seeds.resolvedCount) realms (\(r.count == nil ? "automatic" : "chosen")); realm sizes \(sizes.min() ?? 0) to \(sizes.max() ?? 0) cells"
 			if !problems.isEmpty { message += "; CHECK FAILED: \(problems.first!)" }
 			let overlay = RealmOverlay(cells: cells, seeds: seeds.realms.map { map.grid.points[$0.cell] },
 				links: groups.links.map { RealmSegment(from: $0.pointA, to: $0.pointB) }, width: map.width, height: map.height)
-			let recipe = RealmRecipe(realmSeed: s.realmSeed, reach: s.reach, chosenCount: s.automaticCount ? nil : s.realmCount, resolvedCount: seeds.resolvedCount, typicalRealmArea: s.typicalArea, maximumRealms: 500, hillFactor: s.hillFactor, mountainFactor: s.mountainFactor, crossingFactor: s.crossingFactor, unevenness: s.unevenness)
-			return (overlay, message, ownership, recipe)
+			return (overlay, message)
 		} catch {
-			return (nil, "no realms: \(error)", nil, nil)
+			return (nil, "no realms: \(error)")
 		}
 	}
 }
@@ -251,8 +222,6 @@ struct ContentView: View {
 	/// The pins, kept with the fingerprint of the map they were dropped on: a different map shows its own pins, never these.
 	@State private var pinsByMap: [String: [MapPin]] = [:]
 	@State private var selectedPin: String?
-	@State private var newMarker = "pin"
-	@State private var newColor = "red"
 	@State private var helpIsShown = false
 
 	/// What is on show: an opened map, or the map the settings make.
@@ -267,7 +236,7 @@ struct ContentView: View {
 				ZStack {
 					if let result = shown {
 						FantasyMapView(drawing: result.drawing, viewport: $viewport, mapIdentity: result.identity, pinLayer: pinLayer(for: result))
-						if let overlay = result.overlay, settings.showRealms, settings.realmOverlay { RealmOverlayView(overlay: overlay, showSeeds: settings.showSeeds, showLinks: settings.showLinks, viewport: viewport, cellSpacing: result.drawing.cellSpacing) }
+						if let overlay = result.overlay, settings.realmOverlay { RealmOverlayView(overlay: overlay, showSeeds: settings.showSeeds, showLinks: settings.showLinks, viewport: viewport, cellSpacing: result.drawing.cellSpacing) }
 					} else {
 						Color.clear
 					}
@@ -278,8 +247,8 @@ struct ContentView: View {
 			}
 			.frame(minWidth: 640, minHeight: 400)
 		}
-		.onChange(of: settings) { opened = nil }
-		.task(id: settings) {
+		.onChange(of: settings.making) { opened = nil }
+		.task(id: settings.making) {
 			working = true
 			let s = settings
 			do {
@@ -303,37 +272,22 @@ struct ContentView: View {
 	var controls: some View {
 		VStack(alignment: .leading, spacing: 12) {
 			Text("Fantasy map").font(.headline)
-			LabeledContent("Seed") { TextField("seed", text: $settings.seed).textFieldStyle(.roundedBorder) }
-			Picker("Land shape", selection: $settings.template) {
-				ForEach(HeightmapTemplate.all.map(\.key), id: \.self) { Text($0).tag($0) }
-			}
-			Picker("Cells", selection: $settings.cells) {
-				ForEach([1_000, 3_000, 10_000, 30_000, 100_000], id: \.self) { Text($0.formatted()).tag($0) }
-			}
-			Stepper("Smoothing: \(settings.smoothing)", value: $settings.smoothing, in: 0...CoastOutlines.maximumSmoothing)
-			VStack(alignment: .leading) {
-				Text("Coast ink width: \(settings.inkWidth, specifier: "%.1f")")
-				Slider(value: $settings.inkWidth, in: 0...4)
+			// **all the map's controls in one box**: the package's `MapControls` over `MapSettings`
+			MapControls(settings: $settings.map, pinCount: shown.map { pinsByMap[$0.fingerprint]?.count ?? 0 })
+			Text("Press and hold on the map to drop a pin and write its memo; tap a pin for its memo, drag it to move it, Delete removes it. The pins are saved with the map.")
+				.font(.caption2).foregroundStyle(.secondary)
+			if let fingerprint = shown?.fingerprint {
+				let elsewhere = pinsByMap.filter { $0.key != fingerprint }.values.reduce(0) { $0 + $1.count }
+				if elsewhere > 0 { Text("\(elsewhere) pins belong to other maps (not shown)").font(.caption) }
 			}
 			Divider()
-			Toggle("Rough coast", isOn: $settings.roughness)
-			VStack(alignment: .leading) {
-				Text("Roughness amplitude: \(settings.amplitude, specifier: "%.2f")")
-				Slider(value: $settings.amplitude, in: 0.1...3)
-			}.disabled(!settings.roughness)
-			Stepper("Roughness variant: \(settings.variant)", value: $settings.variant, in: 0...99).disabled(!settings.roughness)
-			Divider()
-			Toggle("Rivers (water map)", isOn: $settings.showRivers)
-			VStack(alignment: .leading) {
-				Text("River width: \(settings.riverScale, specifier: "%.1f")×")
-				Slider(value: $settings.riverScale, in: 0.2...4)
-			}.disabled(!settings.showRivers)
-			Divider()
-			Text("Pins").font(.headline)
-			pinControls
-			Divider()
-			Toggle("Realms", isOn: $settings.showRealms)
-			if settings.showRealms { realmControls }
+			// the demo's own: a diagnostic view of the realms, and files
+			Toggle("Raw-cell realm overlay (diagnostic)", isOn: $settings.realmOverlay)
+			Text("Raw cell polygons for looking at territories; not the coast-aligned drawing.").font(.caption2).foregroundStyle(.secondary)
+			if settings.realmOverlay {
+				Toggle("Show seeds", isOn: $settings.showSeeds)
+				Toggle("Show crossing links", isOn: $settings.showLinks)
+			}
 			Divider()
 			HStack {
 				Button("Save picture…") { savePicture() }
@@ -351,8 +305,7 @@ struct ContentView: View {
 			}
 			if let failure { Text(failure).foregroundStyle(.red).font(.caption) }
 			if let result = shown { Text(result.summary).font(.caption).foregroundStyle(.secondary) }
-			if settings.showRealms, opened == nil, let message = result?.realmMessage { Text(message).font(.caption).foregroundStyle(message.hasPrefix("no realms") || message.contains("CHECK FAILED") ? .red : .secondary) }
-			Spacer()
+			if opened == nil, let message = result?.realmMessage { Text(message).font(.caption).foregroundStyle(message.hasPrefix("no realms") || message.contains("CHECK FAILED") ? .red : .secondary) }
 		}
 	}
 
@@ -365,44 +318,6 @@ struct ContentView: View {
 		.font(.callout)
 		.frame(width: 320)
 		.padding()
-	}
-
-	var realmControls: some View {
-		VStack(alignment: .leading, spacing: 8) {
-			Toggle("Draw realms in the picture", isOn: $settings.realmPicture)
-			Text("A soft wash per realm, held inside the coast, and a thin grey dashed border between realms.").font(.caption2).foregroundStyle(.secondary)
-			Toggle("Raw-cell overlay (diagnostic)", isOn: $settings.realmOverlay)
-			Text("The overlay is raw cell polygons for looking at territories; not the coast-aligned drawing.").font(.caption2).foregroundStyle(.secondary)
-			VStack(alignment: .leading) {
-				Text("Reach (longest sea crossing): \(Int(settings.reach)) map units")
-				Slider(value: $settings.reach, in: 0...150, step: 1)
-			}
-			Toggle("Automatic realm count", isOn: $settings.automaticCount)
-			if settings.automaticCount {
-				VStack(alignment: .leading) {
-					Text("Typical realm area: \(Int(settings.typicalArea)) map units²")
-					Slider(value: $settings.typicalArea, in: 5_000...200_000, step: 5_000)
-				}
-			} else {
-				Stepper("Realms: \(settings.realmCount)", value: $settings.realmCount, in: 1...200)
-			}
-			LabeledContent("Realm seed") { TextField("seed", text: $settings.realmSeed).textFieldStyle(.roundedBorder) }
-			VStack(alignment: .leading) {
-				Text("Unevenness: \(settings.unevenness, specifier: "%.1f")")
-				Slider(value: $settings.unevenness, in: 0...20)
-			}
-			VStack(alignment: .leading) {
-				Text("Hill / mountain cost: \(settings.hillFactor, specifier: "%.0f") / \(settings.mountainFactor, specifier: "%.0f")")
-				Slider(value: $settings.hillFactor, in: 1...10, step: 1)
-				Slider(value: $settings.mountainFactor, in: 1...30, step: 1)
-			}
-			VStack(alignment: .leading) {
-				Text("Sea crossing cost: \(settings.crossingFactor, specifier: "%.0f")")
-				Slider(value: $settings.crossingFactor, in: 1...20, step: 1)
-			}
-			Toggle("Show seeds", isOn: $settings.showSeeds)
-			Toggle("Show crossing links", isOn: $settings.showLinks)
-		}
 	}
 
 	func savePicture() {
@@ -421,7 +336,7 @@ struct ContentView: View {
 			case .dropped(let place):
 				guard (pinsByMap[fingerprint]?.count ?? 0) < PinLimits.maximumPins else { return } // a map holds at most `PinLimits.maximumPins`
 				let id = MapPin.newID()
-				pinsByMap[fingerprint, default: []].append(MapPin(id: id, position: place, marker: newMarker, color: newColor))
+				pinsByMap[fingerprint, default: []].append(MapPin(id: id, position: place, marker: settings.map.pin.marker, color: settings.map.pin.color))
 				selectedPin = id
 			case .moved(let id, let place):
 				if let i = pinsByMap[fingerprint]?.firstIndex(where: { $0.id == id }) { pinsByMap[fingerprint]?[i].position = place }
@@ -442,8 +357,7 @@ struct ContentView: View {
 	/// Where the selected pin's marker is in the map area now (zero if it is not shown).
 	func selectedPinFrame(in size: CGSize) -> CGRect {
 		guard let result = shown, let selected = selectedDemoPin, let pin = pinsByMap[selected.fingerprint]?[selected.index] else { return .zero }
-		let g = MapViewportGeometry(mapWidth: result.drawing.width, mapHeight: result.drawing.height, viewWidth: size.width, viewHeight: size.height, cellSpacing: result.drawing.cellSpacing)
-		return PinGeometry.placements(pins: [pin], markers: StandardPinMarkers(), geometry: g, viewport: viewport).first { $0.isVisible }?.frame ?? .zero
+		return PinGeometry.markerFrame(of: pin, in: result.drawing, viewSize: size, viewport: viewport) ?? .zero
 	}
 
 	/// The memo is open while a pin of this map is selected and in view; closing it deselects.
@@ -456,34 +370,10 @@ struct ContentView: View {
 	var pinNote: some View {
 		if let selected = selectedDemoPin {
 			let fingerprint = selected.fingerprint, index = selected.index
-			PinNoteView(
-				note: Binding(get: { pinsByMap[fingerprint]?[index].note ?? "" }, set: { pinsByMap[fingerprint]?[index].note = String($0.prefix(PinLimits.maximumNoteLength)) }),
-				color: Binding(get: { pinsByMap[fingerprint]?[index].color ?? "red" }, set: { pinsByMap[fingerprint]?[index].color = $0; newColor = $0 }),
+			PinNote(
+				note: Binding(get: { pinsByMap[fingerprint]?[index].note ?? "" }, set: { pinsByMap[fingerprint]?[index].note = $0 }),
+				color: Binding(get: { pinsByMap[fingerprint]?[index].color ?? "red" }, set: { pinsByMap[fingerprint]?[index].color = $0; settings.map.pin.color = $0 }),
 				onDelete: { pinsByMap[fingerprint]?.remove(at: index); selectedPin = nil })
-		}
-	}
-
-	/// The side panel: how new pins look, how many there are. **Tap a pin on the map for its memo.**
-	@ViewBuilder
-	var pinControls: some View {
-		VStack(alignment: .leading, spacing: 8) {
-			Picker("New pin", selection: $newMarker) {
-				Text("Map pin").tag("pin"); Text("Dot").tag("dot")
-			}.pickerStyle(.segmented)
-			HStack(spacing: 6) {
-				Text("Colour").font(.caption)
-				ForEach(StandardPinMarkers.colorKeys, id: \.self) { key in
-					Circle().fill(StandardPinMarkers().color(for: key)).frame(width: 16, height: 16)
-						.overlay(Circle().stroke(Color.primary.opacity(newColor == key ? 0.9 : 0.2), lineWidth: newColor == key ? 2 : 1))
-						.onTapGesture { newColor = key }
-				}
-			}
-			Text("Press and hold on the map to drop a pin and write its memo; tap a pin for its memo, drag it to move it, Delete removes it. The pins are saved with the map.").font(.caption2).foregroundStyle(.secondary)
-			if let fingerprint = shown?.fingerprint {
-				let count = pinsByMap[fingerprint]?.count ?? 0
-				let elsewhere = pinsByMap.filter { $0.key != fingerprint }.values.reduce(0) { $0 + $1.count }
-				Text("\(count) pins on this map" + (elsewhere > 0 ? "; \(elsewhere) belong to other maps (not shown)" : "")).font(.caption)
-			}
 		}
 	}
 
@@ -530,35 +420,3 @@ struct FantasyMapDemoApp: App {
 
 
 /// A light sticky note: a few lines of memo on yellow paper, a few colours for the pin, and a delete.
-struct PinNoteView: View {
-	@Binding var note: String
-	@Binding var color: String
-	var onDelete: () -> Void
-	@FocusState private var focused: Bool
-
-	var body: some View {
-		VStack(alignment: .leading, spacing: 8) {
-			TextEditor(text: $note)
-				.font(.system(size: 13))
-				.scrollContentBackground(.hidden)
-				.focused($focused)
-				.frame(width: 220, height: 110)
-				.overlay(alignment: .topLeading) {
-					if note.isEmpty { Text("Memo…").font(.system(size: 13)).foregroundStyle(.secondary).padding(.top, 8).padding(.leading, 5).allowsHitTesting(false) }
-				}
-			HStack(spacing: 8) {
-				ForEach(StandardPinMarkers.colorKeys, id: \.self) { key in
-					Circle().fill(StandardPinMarkers().color(for: key)).frame(width: 18, height: 18)
-						.overlay(Circle().stroke(Color.black.opacity(color == key ? 0.8 : 0.15), lineWidth: color == key ? 2 : 1))
-						.onTapGesture { color = key }
-				}
-				Spacer()
-				Button(role: .destructive, action: onDelete) { Image(systemName: "trash") }.buttonStyle(.borderless)
-			}
-		}
-		.padding(10)
-		.background(Color(red: 1, green: 0.96, blue: 0.66))
-		.foregroundStyle(Color.black.opacity(0.85))
-		.onAppear { focused = true }
-	}
-}
