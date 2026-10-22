@@ -195,6 +195,58 @@ Your own marker look: conform to `PinMarkers` (a size and anchor for each pin, a
 
 Realms (territories) are the port's own growth over the cells: find the landmasses, place seeds, grow, then attach the result with `map.adding(RealmLayer(...))`; the view then draws a soft wash and thin borders. The sequence is longer than the rest, so read `Maker.realms` in `Sources/FantasyMapDemo/FantasyMapDemoApp.swift` and [`design-realms.md`](design-realms.md).
 
+## Controls, settings and the pin note
+
+Everything that makes and shows a map is one value, **`MapSettings`**, and the package has one view that edits it, **`MapControls`**. Your app owns the settings; the view only edits them, and **`MapSettings.change(from:)` says how much work a change takes**, so you do not make the whole map again for a slider.
+
+```swift
+@State private var settings = MapSettings()       // the finished map: continents, 10,000 cells, rivers and realms on
+
+MapControls(settings: $settings)                  // every group
+MapControls(settings: $settings, groups: [.seedAndShape, .realms, .pins])   // only these
+```
+
+The groups are `.seedAndShape` (the seed, **Another Seed** and the fourteen land shapes), `.detail` (the cells), `.coast`, `.rivers`, `.realms` (draw realms, the number, how uneven, the reach, and the rest under **More**) and `.pins` (the next pin's marker and colour). A group you do not show keeps its settings, so you have nothing to wire for it. The view is a plain column with no scrolling or background of its own: put it in a `ScrollView` or a sidebar.
+
+**What a change takes.** `settings.change(from: applied)` gives `.newMap` (a new seed, land shape or number of cells: the pins go with the old map), `.realms` (a realm setting: the realms are grown again **on the same land, and the land, the rivers and the pins are kept**) or `.look` (the coast, the rivers' look, whether realms are drawn: only the drawing changes). It can be more than one, and it is empty when nothing differs (the next pin's marker and colour change no map).
+
+```swift
+func apply() async {
+	let wanted = settings
+	let change = wanted.change(from: applied)
+	guard map == nil || !change.isEmpty else { return }
+	do {
+		try wanted.validate()                      // throws MapSettings.Problem.invalid("realms.reach"), naming the setting
+		let old = map
+		let made = try await Task.detached { () -> (WaterMap, MapDrawing) in
+			let water: WaterMap
+			if let old, !change.contains(.newMap) {
+				water = change.contains(.realms) ? try old.regrowingRealms(settings: wanted) : old
+			} else {
+				water = try WaterMap.generate(settings: wanted)      // land, realms and water in one call
+			}
+			return (water, MapDrawing(water: water, settings: wanted))   // rivers only when the settings show them
+		}.value
+		(map, drawing, applied) = (made.0, made.1, wanted)
+	} catch MapSettings.Problem.invalid(let name) {
+		problem = "This setting cannot be used: \(name)."
+	}
+}
+```
+
+Call it from `.task(id: settings)`, which cancels a stale run (add a short `Task.sleep` at the top of `apply()` to let typing and dragging settle before it starts). A map you open is edited from **`MapSettings(describing: water.land)`**, which reads the seed, land shape, cells and realm settings back from the map; the coast, the rivers' look and the pin are the defaults, because a map does not keep them.
+
+**The pin note.** `PinNote(note:color:onDelete:)` is the light sticky note for a pin: a memo, the six colours and a delete. Show it in a popover beside the selected pin, and anchor the popover with `PinGeometry.markerFrame(of:in:viewSize:viewport:)`, which says where the pin's marker is (nil when it is out of view). The note cuts the memo to what a map can save (`PinLimits.limiting(note:)`: 2,000 characters and 16,000 bytes, never splitting a character), and **the app keeps the pin**, as it keeps every pin.
+
+```swift
+FantasyMapView(drawing: drawing, viewport: $viewport, pinLayer: pinLayer)
+	.popover(isPresented: noteIsShown, attachmentAnchor: .rect(.rect(PinGeometry.markerFrame(of: pin, in: drawing, viewSize: size, viewport: viewport) ?? .zero))) {
+		PinNote(note: $pin.note, color: $pin.color, onDelete: remove)
+	}
+```
+
+The demo's whole controls column is `MapControls`, and its popover is `PinNote`.
+
 ## The demo
 
 `Sources/FantasyMapDemo` is a working app that uses all of the above; `swift run -c release FantasyMapDemo` opens it. It is a good place to copy from.
