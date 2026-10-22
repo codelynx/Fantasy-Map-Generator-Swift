@@ -182,6 +182,13 @@ public enum PinGeometry {
 		}
 	}
 
+	/// Where one pin's marker is in a view of this drawing now, for an app to anchor something beside it (the memo's popover); **nil when the pin is not placeable or none of it
+	/// is in view.** `viewSize` is the size of the area the map is drawn in.
+	public static func markerFrame(of pin: MapPin, in drawing: MapDrawing, viewSize: CGSize, viewport: MapViewport, markers: any PinMarkers = StandardPinMarkers()) -> CGRect? {
+		let geometry = MapViewportGeometry(mapWidth: drawing.width, mapHeight: drawing.height, viewWidth: viewSize.width, viewHeight: viewSize.height, cellSpacing: drawing.cellSpacing)
+		return placements(pins: [pin], markers: markers, geometry: geometry, viewport: viewport).first { $0.isVisible }?.frame
+	}
+
 	/// The id of the pin under a view point: **the topmost, which is the last in order among those whose frame (grown by `slop`) contains it**, ignoring any that are out of view.
 	public static func hit(at point: CGPoint, placements: [PinPlacement], slop: CGFloat = 0) -> String? {
 		placements.last { $0.isVisible && $0.hitFrame(slop: slop).contains(point) }?.id
