@@ -2,18 +2,18 @@
 
 How to use the two libraries in your own app. Short on purpose: the types have doc comments, and each stage has a note in [`steps/`](steps/).
 
-Requires macOS 14 or iOS 17, Swift 6. `FantasyMapKit` makes and saves maps and has no UI; `FantasyMapKitUI` draws and shows them in SwiftUI and depends on it.
+Requires macOS 14 or iOS 17, Swift 6. `FantasyMapCore` makes and saves maps and has no UI; `FantasyMapKit` draws and shows them in SwiftUI and depends on it.
 
 ## Add it
 
     .package(url: "https://github.com/codelynx/Fantasy-Map-Generator-Swift", from: "0.1.0")
 
-then add the products `FantasyMapKit` and `FantasyMapKitUI` to your target.
+then add the products `FantasyMapCore` and `FantasyMapKit` to your target.
 
 ## Make a map
 
 ```swift
-import FantasyMapKit
+import FantasyMapCore
 
 let template = HeightmapTemplate.named("continents")!   // `HeightmapTemplate.all` lists the fourteen
 let land = try LandMap.generate(seed: "12345", cellsDesired: 10_000, template: template)
@@ -24,7 +24,7 @@ The same seed, template and cell count give the same map. Generation is synchron
 
 ## Read the data (no UI needed)
 
-`FantasyMapKit` alone is enough for a game that draws its own map. It has two kinds of cell, and mixing them up is the commonest mistake:
+`FantasyMapCore` alone is enough for a game that draws its own map. It has two kinds of cell, and mixing them up is the commonest mistake:
 
 | | Grid cells | Packed cells |
 |---|---|---|
@@ -69,7 +69,16 @@ for river in water.rivers {
 
 A `River` also has `source` and `mouth` cells, `discharge`, `length`, `width`, and `parent` (the river it flows into, or 0). `water.riverIds[packedCell]` is the river number of a packed cell, 0 for none, and `water.packed.heights` are the heights after the rivers have cut their beds. The picture you see in `FantasyMapView` is drawn from the same arrays.
 
-**Realms** are made in three steps and give one realm number per grid cell:
+**Realms, in one call.** For the usual case (the automatic count, the demo's settings, the colours saved with the map) `FantasyMapKit` makes them for you:
+
+```swift
+let withRealms = try land.addingRealms()                       // realm seed: the map's own seed; or `addingRealms(realmSeed: "...")`
+let whole = try WaterMap.generate(seed: "12345", template: template, cellsDesired: 10_000)   // land, realms and water in one call
+```
+
+The settings used are `RealmDefaults`; no setting is offered here. The same inputs always give the same realms. To choose the settings (the count, the reach, the growth), make the realms in steps:
+
+**Realms in steps** give one realm number per grid cell:
 
 ```swift
 let groups = try LandGroups.find(in: land, reach: 25)    // landmasses joined by sea crossings no longer than `reach` map units
@@ -129,7 +138,7 @@ The weights are arbitrary, so change them to taste. The best cells are often nei
 ## Show it
 
 ```swift
-import FantasyMapKitUI
+import FantasyMapKit
 
 FantasyMapView(water: water)    // or FantasyMapView(map: land)
 ```

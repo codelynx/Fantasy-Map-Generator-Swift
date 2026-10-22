@@ -18,7 +18,7 @@ Voronoi cells, one of the fourteen land templates' heights, the features (island
 from the coast, and the lakes that change heights and coasts. `encoded()` saves it and `LandMap(decoding:)` loads it,
 identical to what was saved. Each stage was compared with the original's own output (see `docs/steps/`).
 
-**Drawing:** a second library target, `FantasyMapKitUI`, draws a map and shows it in SwiftUI (`FantasyMapView`, with zoom, pan and pins; `MapImage` renders a bitmap or PNG). It draws the height picture, the inked and optionally roughened coast, rivers, and the realms as a soft wash with thin dashed borders. The core does not depend on it. No symbols or labels yet (see `docs/design-drawing.md`). Example pictures: [height only](docs/images/height-continents.png), [coast inked](docs/images/coast-continents.png), [coast smoothed](docs/images/coast-smooth-continents.png).
+**Drawing:** a second library target, `FantasyMapKit`, draws a map and shows it in SwiftUI (`FantasyMapView`, with zoom, pan and pins; `MapImage` renders a bitmap or PNG). It draws the height picture, the inked and optionally roughened coast, rivers, and the realms as a soft wash with thin dashed borders. The core does not depend on it. No symbols or labels yet (see `docs/design-drawing.md`). Example pictures: [height only](docs/images/height-continents.png), [coast inked](docs/images/coast-continents.png), [coast smoothed](docs/images/coast-smooth-continents.png).
 
 Using the libraries in your own app: [docs/programming-guide.md](docs/programming-guide.md).
 
@@ -26,7 +26,7 @@ Using the libraries in your own app: [docs/programming-guide.md](docs/programmin
 
     swift run -c release FantasyMapDemo
 
-opens a small SwiftUI window (macOS) with a seed field, an optional **diagnostic realms overlay** (territories, seeds and crossing links drawn on the raw cells, with the reach, the count and the growth settings on sliders; not the final territory drawing), the land shapes, the number of cells, coast smoothing, an optional rough coast and buttons to save the picture (PNG) and the map (the package's JSON). Release mode is much faster than debug for large maps. It is a demo target that uses the two libraries; the libraries do not use it, and apps use them directly (`FantasyMapKit` for the data, `FantasyMapKitUI` for the picture). A SwiftPM executable is not an app bundle, so the window has no custom icon and menus are minimal.
+opens a small SwiftUI window (macOS) with a seed field, an optional **diagnostic realms overlay** (territories, seeds and crossing links drawn on the raw cells, with the reach, the count and the growth settings on sliders; not the final territory drawing), the land shapes, the number of cells, coast smoothing, an optional rough coast and buttons to save the picture (PNG) and the map (the package's JSON). Release mode is much faster than debug for large maps. It is a demo target that uses the two libraries; the libraries do not use it, and apps use them directly (`FantasyMapCore` for the data, `FantasyMapKit` for the picture). A SwiftPM executable is not an app bundle, so the window has no custom icon and menus are minimal.
 
 ## Thanks
 

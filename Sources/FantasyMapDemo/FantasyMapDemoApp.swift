@@ -1,4 +1,4 @@
-// A small window to try the package: pick a seed, a land shape and a few settings and see the map drawn by FantasyMapKitUI's
+// A small window to try the package: pick a seed, a land shape and a few settings and see the map drawn by FantasyMapKit's
 // `FantasyMapView`. It uses the two libraries; they do not use it. Run it with
 //
 //   swift run -c release FantasyMapDemo
@@ -6,8 +6,8 @@
 // (release is much faster than debug for large maps).
 
 import AppKit
+import FantasyMapCore
 import FantasyMapKit
-import FantasyMapKitUI
 import SwiftUI
 
 /// What the controls hold. Hashable so that `.task(id:)` rebuilds the map whenever anything changes.

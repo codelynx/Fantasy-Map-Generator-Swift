@@ -1,4 +1,4 @@
-**One command:** `tools/capture-original.sh <clone> Tests/FantasyMapKitTests/Fixtures/original [--replace]` does all the steps below in a temporary folder, writes `provenance.json` (the original's commit, Node and bundler versions, the resolved Alea, Delaunator and robust-predicates versions, and the capture script's identity), and compares the result with the committed fixture. It replaces the committed fixture only when `--replace` is given; `--check` exits nonzero if the fixtures differ and replaces nothing. A reference checkout with uncommitted changes to tracked files is refused. `provenance.json` also records the hashes of the wrapper, the capture script and both templates. The manual steps follow, for understanding or when something goes wrong.
+**One command:** `tools/capture-original.sh <clone> Tests/FantasyMapCoreTests/Fixtures/original [--replace]` does all the steps below in a temporary folder, writes `provenance.json` (the original's commit, Node and bundler versions, the resolved Alea, Delaunator and robust-predicates versions, and the capture script's identity), and compares the result with the committed fixture. It replaces the committed fixture only when `--replace` is given; `--check` exits nonzero if the fixtures differ and replaces nothing. A reference checkout with uncommitted changes to tracked files is refused. `provenance.json` also records the hashes of the wrapper, the capture script and both templates. The manual steps follow, for understanding or when something goes wrong.
 
 # Running the original's own code for fixtures
 
@@ -11,7 +11,7 @@ Nothing from the clone is copied into this repository except the numbers the run
 2. Copy `rolldown.config.template.mjs` and `utils-stub.template.ts` to a scratch folder (not the clone), replace
    `__CLONE__` and `__SCRATCH__` with absolute paths, and name the copies `rolldown.config.mjs` and `utils-stub.ts`.
 3. In the clone: `./node_modules/.bin/rolldown -c <scratch>/rolldown.config.mjs` (this writes `grid-bundle.mjs` to the scratch folder).
-4. `node tools/capture-original-grid.mjs <scratch>/grid-bundle.mjs Tests/FantasyMapKitTests/Fixtures/original`
+4. `node tools/capture-original-grid.mjs <scratch>/grid-bundle.mjs Tests/FantasyMapCoreTests/Fixtures/original`
 
 The stubs are wiring only: they stand in for the original's browser globals (`window`, `document`, `options`, `TIME`), and
 the original's `rn` and `SEA_LEVEL` are re-exported from its own files. `Grid.generate` is then the original's own code.

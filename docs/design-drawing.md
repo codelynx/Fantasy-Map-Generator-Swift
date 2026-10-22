@@ -4,7 +4,7 @@ Status: draft revised after review, 2026-10-20, for the author's approval. Desig
 
 ## What it is
 
-A second library target in this package (working name `FantasyMapKitUI`, undecided), separate from the core. **The core never depends on it:** a build of the core target alone must not need the drawing target, and that is to be verified (building or testing the whole package may still build the UI code). A separate package is not needed. The layer takes a `LandMap` and a style and gives a picture: a SwiftUI view for macOS and iOS, and an image.
+A second library target in this package (working name `FantasyMapKit`, undecided), separate from the core. **The core never depends on it:** a build of the core target alone must not need the drawing target, and that is to be verified (building or testing the whole package may still build the UI code). A separate package is not needed. The layer takes a `LandMap` and a style and gives a picture: a SwiftUI view for macOS and iOS, and an image.
 
 ## What it takes and gives
 

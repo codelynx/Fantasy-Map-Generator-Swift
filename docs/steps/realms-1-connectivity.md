@@ -4,8 +4,8 @@ Status: built 2026-10-20; review corrections applied (primitive-work budget, bud
 
 ## What was built
 
-- **`RectangleClip`** (`Sources/FantasyMapKit/Geometry/RectangleClip.swift`): the one rectangle clip (a convex polygon against the map's rectangle). The drawing layer's `MapDrawing.clip` now calls it; its existing tests pass unchanged.
-- **`LandGroups.find(in:reach:)`** (`Sources/FantasyMapKit/Realms/LandGroups.swift`):
+- **`RectangleClip`** (`Sources/FantasyMapCore/Geometry/RectangleClip.swift`): the one rectangle clip (a convex polygon against the map's rectangle). The drawing layer's `MapDrawing.clip` now calls it; its existing tests pass unchanged.
+- **`LandGroups.find(in:reach:)`** (`Sources/FantasyMapCore/Realms/LandGroups.swift`):
   - **Landmasses:** maximal sets of land cells (height 20 or more) connected through the cell neighbour lists; water and lakes are not land; corner contact does not make one landmass; the frame joins nothing. Numbered by smallest cell index.
   - **Reach** is an explicit finite number of map units, 0 or more (NaN, infinite and negative are refused with `invalidReach`). **Reach 0 disables sea connections.** For a positive reach two landmasses are joined by a **proximity link** when the distance between their raw cell polygons clipped to the rectangle is at most the reach (inclusive); the distance is computed with Double arithmetic. **A positive reach therefore joins corner-touching landmasses (distance 0) and reach 0 does not.**
   - **Groups** are the transitive closure, numbered by smallest cell index; **`minimumRealms`** is their number (0 with no land).

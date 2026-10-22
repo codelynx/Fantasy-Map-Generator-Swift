@@ -4,7 +4,7 @@ Built 2026-10-21, from [the plan](../plans/pins-saving.md) (limits accepted). A 
 
 ## What it does
 
-- **`MapPin` moved to `FantasyMapKit`** (it was in the drawing library): an id, a place in map units, a marker key, a colour key and a memo. `MapPin.newID()` makes a fresh id (a UUID string). A pin saved without a colour or a memo loads as red with an empty memo.
+- **`MapPin` moved to `FantasyMapCore`** (it was in the drawing library): an id, a place in map units, a marker key, a colour key and a memo. `MapPin.newID()` makes a fresh id (a UUID string). A pin saved without a colour or a memo loads as red with an empty memo.
 - **`LandMap.pins`, `settingPins(_:)`** (also on `WaterMap`): setting pins checks them first and changes nothing if they do not fit. `adding` and `removingRealms` keep the pins.
 - **The land file's version says which layers it may hold:** version 3 holds pins (and realms if there are any); version 2 realms only; version 1 neither. A map with no pins, or whose pins were all removed, is written exactly as before, so older files and their bytes do not change. A file whose layers do not match its version is refused.
 - **Limits (`PinLimits`):** 5,000 pins; ids, marker keys and colour keys 1 to 64 characters; a memo up to 2,000 characters and 16,000 bytes of UTF-8; ids unique; every place finite and inside the map (the edges are inside). Loading checks all of it and throws `SavedLandMapError.invalidPins(…)` on the first problem.

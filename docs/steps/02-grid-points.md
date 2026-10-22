@@ -4,7 +4,7 @@ Built 2026-10-20, as step 2 of [the land plan](../plans/land-layer.md).
 
 ## What it does
 
-`GridPoints.generate(seed:width:height:cellsDesired:)` (`Sources/FantasyMapKit/Land/GridPoints.swift`) makes the first stage of the land, as the original's `Grid.generate` does before it builds the cells:
+`GridPoints.generate(seed:width:height:cellsDesired:)` (`Sources/FantasyMapCore/Land/GridPoints.swift`) makes the first stage of the land, as the original's `Grid.generate` does before it builds the cells:
 
 1. **Spacing:** `rn(sqrt(width × height / cellsDesired), 2)`, with the original's rounding.
 2. **Boundary points:** pseudo-points along the map edge, outside it by `|offset|` map units, where the offset is `rn(-spacing)`, the spacing rounded to a whole number (so "one spacing outside" only approximately). They clip the outer cells and get no cells of their own, and use no random numbers.

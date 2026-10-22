@@ -4,7 +4,7 @@ Status: built 2026-10-20 (plan: [water.md](../plans/water.md)). Fourth stage of 
 
 ## What was built
 
-- **`PackedMap.generate(for:)`** (`Sources/FantasyMapKit/Pack/PackedMap.swift`), a port of `Pack.generate` in `pack-generator.ts` at the pinned original (commit `8936c9c`). For each grid cell in grid order it decides whether the cell has a packed point:
+- **`PackedMap.generate(for:)`** (`Sources/FantasyMapCore/Pack/PackedMap.swift`), a port of `Pack.generate` in `pack-generator.ts` at the pinned original (commit `8936c9c`). For each grid cell in grid order it decides whether the cell has a packed point:
   - **Deep ocean is dropped:** a water cell whose coast distance is neither −1 nor −2 (neither a water cell on the coast nor the next ring out; the lake and shallow-sea cells keep their points).
   - **Inland lake cells are thinned:** a cell at distance −2 is dropped if its grid number is a multiple of 4 or its feature is a lake.
   - **Coasts are split:** a kept coast cell (distance 1 or −1) away from the map border adds the midpoint, rounded to one decimal, with each neighbour that has a **higher** grid number, the same coast distance and a distance of at least the grid spacing.

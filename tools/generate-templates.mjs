@@ -1,6 +1,6 @@
-// Writes Sources/FantasyMapKit/Land/HeightmapTemplates.swift from the ORIGINAL's src/data/heightmap-templates.ts, so the
+// Writes Sources/FantasyMapCore/Land/HeightmapTemplates.swift from the ORIGINAL's src/data/heightmap-templates.ts, so the
 // fourteen template scripts are carried over by program and not retyped. Usage:
-//   node tools/generate-templates.mjs <clone of Azgaar/Fantasy-Map-Generator> > Sources/FantasyMapKit/Land/HeightmapTemplates.swift
+//   node tools/generate-templates.mjs <clone of Azgaar/Fantasy-Map-Generator> > Sources/FantasyMapCore/Land/HeightmapTemplates.swift
 // The templates are step scripts in the original's (MIT-licensed) source; the port's acknowledgements cover them. A test
 // compares the generated table with the template table the original's own code holds (heights-original.json).
 import { execFileSync } from "node:child_process";

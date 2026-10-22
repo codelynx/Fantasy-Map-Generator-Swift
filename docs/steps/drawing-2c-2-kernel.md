@@ -4,7 +4,7 @@ Status: done 2026-10-20 (plan: [roughening-2c.md](../plans/roughening-2c.md)). T
 
 ## What was ported
 
-`Sources/FantasyMapKit/Coast/CoastlineKernel.swift`, from the original's `coastline-generator.ts` (commit `8936c9c`): `featureSeed` (`Alea("<seed>_c<id>_<variant>")`, one `next()` times 2³² truncated by `| 0`), `noise` (murmur-style 32-bit mixing; inputs read as `value | 0`), the two-octave `roughness` field (including the `**` power), the recursive `fractalize` of a **closed** polygon (edges with both ends on the border are skipped; the last point joins back to the first), the quantising of segment ends with JavaScript's `Math.round`, and `shape` (the layer that implements `enabled: false` and the calmer lake shore). Not ported: `simplify.js`, `clipPoly`, the SVG path building.
+`Sources/FantasyMapCore/Coast/CoastlineKernel.swift`, from the original's `coastline-generator.ts` (commit `8936c9c`): `featureSeed` (`Alea("<seed>_c<id>_<variant>")`, one `next()` times 2³² truncated by `| 0`), `noise` (murmur-style 32-bit mixing; inputs read as `value | 0`), the two-octave `roughness` field (including the `**` power), the recursive `fractalize` of a **closed** polygon (edges with both ends on the border are skipped; the last point joins back to the first), the quantising of segment ends with JavaScript's `Math.round`, and `shape` (the layer that implements `enabled: false` and the calmer lake shore). Not ported: `simplify.js`, `clipPoly`, the SVG path building.
 
 ## Evidence
 

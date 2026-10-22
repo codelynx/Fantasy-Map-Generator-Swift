@@ -6,7 +6,7 @@ Status: published 2026-10-21 at https://github.com/codelynx/Fantasy-Map-Generato
 
 Before the port can be shown, these must be settled or written down.
 
-1. **Names.** Decided. The package is `Fantasy-Map-Generator-Swift`; the libraries `FantasyMapKit` and `FantasyMapKitUI`; the demo `FantasyMapDemo`; the view `FantasyMapView`.
+1. **Names.** Decided. The package is `Fantasy-Map-Generator-Swift`; the libraries `FantasyMapCore` and `FantasyMapKit`; the demo `FantasyMapDemo`; the view `FantasyMapView`.
 2. **Licence.** Decided: MIT. The original is MIT with one added paragraph (maps made with it are free to use); its notice is kept in `ACKNOWLEDGEMENTS.md`.
 3. **README.** Done: status paragraph, credit, picture, link to the programming guide. It says plainly that this is an unofficial, independent port.
 4. **Credits.** README credit section, `ACKNOWLEDGEMENTS.md` (original licence reproduced, third-party notices), `docs/dependencies.md` (alea, delaunator, robust-predicates, d3 parts, fdlibm, lineclip). To be checked in the preflight against the code as it is then.

@@ -1,6 +1,6 @@
 # Realms: a bounded inspection of growth (measurement)
 
-Measured 2026-10-20 with `Tests/FantasyMapKitTests/RealmInspection.swift`, which asserts nothing and runs only on request (`FMK_MEASURE=1 swift test -c release --filter RealmInspection`). It follows the review of the diagnostic overlay: inspect a bounded selection before designing cleanup, and separate **unavoidable group-size imbalance** from **growth artifacts**. It decides nothing, and **the speck rules are unchanged: they are the author's decision.** The reach is fixed at 25 map units, the growth factors at 3, 8 and 4, the typical realm area at 40,000 map units², and the cap at 500; all provisional.
+Measured 2026-10-20 with `Tests/FantasyMapCoreTests/RealmInspection.swift`, which asserts nothing and runs only on request (`FMK_MEASURE=1 swift test -c release --filter RealmInspection`). It follows the review of the diagnostic overlay: inspect a bounded selection before designing cleanup, and separate **unavoidable group-size imbalance** from **growth artifacts**. It decides nothing, and **the speck rules are unchanged: they are the author's decision.** The reach is fixed at 25 map units, the growth factors at 3, 8 and 4, the typical realm area at 40,000 map units², and the cap at 500; all provisional.
 
 ## What was run
 

@@ -6,20 +6,20 @@ let package = Package(
 	name: "Fantasy-Map-Generator-Swift",
 	platforms: [.macOS(.v14), .iOS(.v17)],
 	products: [
+		.library(name: "FantasyMapCore", targets: ["FantasyMapCore"]),
 		.library(name: "FantasyMapKit", targets: ["FantasyMapKit"]),
-		.library(name: "FantasyMapKitUI", targets: ["FantasyMapKitUI"]),
 		.executable(name: "FantasyMapDemo", targets: ["FantasyMapDemo"]),
 	],
 	targets: [
-		.target(name: "FantasyMapKit"),
+		.target(name: "FantasyMapCore"),
 		// the drawing layer: depends on the core, and the core never depends on it
-		.target(name: "FantasyMapKitUI", dependencies: ["FantasyMapKit"]),
+		.target(name: "FantasyMapKit", dependencies: ["FantasyMapCore"]),
 		// a small window to try the package: it uses the libraries, and they do not use it
-		.executableTarget(name: "FantasyMapDemo", dependencies: ["FantasyMapKit", "FantasyMapKitUI"]),
-		.testTarget(name: "FantasyMapKitUITests", dependencies: ["FantasyMapKitUI", "FantasyMapKit"]),
+		.executableTarget(name: "FantasyMapDemo", dependencies: ["FantasyMapCore", "FantasyMapKit"]),
+		.testTarget(name: "FantasyMapKitTests", dependencies: ["FantasyMapKit", "FantasyMapCore"]),
 		.testTarget(
-			name: "FantasyMapKitTests",
-			dependencies: ["FantasyMapKit"],
+			name: "FantasyMapCoreTests",
+			dependencies: ["FantasyMapCore"],
 			resources: [.copy("Fixtures")]
 		),
 	]

@@ -1,6 +1,6 @@
 # Drawing layer: the cost of building and showing a large map
 
-Measured 2026-10-20 with `Tests/FantasyMapKitUITests/ViewSpeedMeasurement.swift`, which asserts nothing about speed and runs only on request:
+Measured 2026-10-20 with `Tests/FantasyMapKitTests/ViewSpeedMeasurement.swift`, which asserts nothing about speed and runs only on request:
 
     FMK_MEASURE=1 swift test -c release --filter ViewSpeedMeasurement
 

@@ -4,7 +4,7 @@ Built 2026-10-20, as step 7 of [the land plan](../plans/land-layer.md). They run
 
 ## What it does
 
-`LandLakes` (`Sources/FantasyMapKit/Land/LandLakes.swift`) ports three routines of the original's `grid-generator.ts`:
+`LandLakes` (`Sources/FantasyMapCore/Land/LandLakes.swift`) ports three routines of the original's `grid-generator.ts`:
 
 - **`findDeepDepressionLakes`.** For each land cell that is not on the map's edge, is not lower than all its neighbours' minimum (a cell with a lower neighbour is skipped), a flood (last-in-first-out) looks for water within an **elevation limit**: cells at or above the cell's height plus the limit are not crossed, and reaching a cell below sea level means the cell can pour to water, so it is not a lake. A cell that cannot pour becomes a lake along with its neighbours of equal height. **A working copy of the heights is used, so a lake found earlier is water that a later check can reach.** An elevation limit of exactly **80 switches depression lakes off** (the original's sentinel); the default setting in the original is 20.
 - **`addDeepDepressionLakes`.** For each lake found: its cells get height 19, water coast (-1) and a new feature number (the next number after the existing features); their neighbours outside the lake become coast land (1); and a new feature (water, not touching the edge, a lake) is added. **Heights, the coast distance, the feature ids and the feature records change together.**

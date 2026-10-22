@@ -1,6 +1,6 @@
 # Realms: the geography of the fourteen templates (measurement)
 
-Measured 2026-10-20 with `Tests/FantasyMapKitTests/GeographyMeasurement.swift`, which asserts nothing and runs only on request (`FMK_MEASURE=1 swift test -c release --filter GeographyMeasurement`; `FMK_CELLS` sets the cell count). It informs the **default reach** and the **typical realm area** for the realms layer ([plan](../plans/realms.md)); it **decides neither**, and the review asked that defaults stay provisional until growth (step 3) has been tried.
+Measured 2026-10-20 with `Tests/FantasyMapCoreTests/GeographyMeasurement.swift`, which asserts nothing and runs only on request (`FMK_MEASURE=1 swift test -c release --filter GeographyMeasurement`; `FMK_CELLS` sets the cell count). It informs the **default reach** and the **typical realm area** for the realms layer ([plan](../plans/realms.md)); it **decides neither**, and the review asked that defaults stay provisional until growth (step 3) has been tried.
 
 ## What was measured
 

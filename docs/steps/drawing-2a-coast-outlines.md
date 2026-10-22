@@ -6,7 +6,7 @@ Status: built 2026-10-20, topology checks added after review. Design: [design-dr
 
 ## What was built
 
-- **`CoastOutlines`** (`Sources/FantasyMapKitUI/CoastOutlines.swift`): from a `LandMap` it makes
+- **`CoastOutlines`** (`Sources/FantasyMapKit/CoastOutlines.swift`): from a `LandMap` it makes
   - `landRings`: closed polygons that together are the land, compound (islands are outer rings, lakes and closed-off bays holes, one land mass can be several rings), each with **land on its left** (outer rings positive signed area, holes negative). A land mass that meets the frame is closed along the frame; **those closing segments are part of the fill, not coastline.**
   - `ink`: only land–water boundaries, as open lines that begin and end on the frame, or closed lines inside it. **Nothing runs along the frame.**
 - **Source of the geometry:** the current cells' Voronoi edges between a land cell and a water cell (height ≥ 20 is land), directed so land is on the left and chained through the Voronoi vertices. Not the feature records (so retained records with no cells are ignored, and a lake is a hole because its cells are water) and **not the stage-1 ray-extended polygons.**
