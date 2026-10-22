@@ -2,7 +2,7 @@
 
 Versions follow the package's git tags. While it is 0.x, the API may change.
 
-## 0.2.0 (to be released)
+## 0.2.0 (2026-10-21)
 
 **Breaking: the libraries are renamed.** The data library is now `FantasyMapCore` (it was `FantasyMapKit`) and the drawing library is now `FantasyMapKit` (it was `FantasyMapKitUI`). Change `import FantasyMapKit` to `import FantasyMapCore` where you use maps as data, `import FantasyMapKitUI` to `import FantasyMapKit` where you draw them, and the product and target names in your `Package.swift` the same way. **Nothing in a saved map changes:** files written by 0.1.0 open in 0.2.0, and a map's fingerprint is the same, so anything you keyed to it still matches.
 
