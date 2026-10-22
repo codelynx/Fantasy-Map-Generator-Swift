@@ -87,6 +87,12 @@ public struct WaterMap: Sendable {
 		WaterMap(land: try land.settingPins(pins), settings: settings, geography: geography, temperature: temperature, precipitation: precipitation, packed: packed, features: features, flux: flux, riverIds: riverIds, confluence: confluence, rivers: rivers)
 	}
 
+	/// This water map with this realm layer on its land map, **validated against the land as `LandMap.adding(_:)` does; nothing changes if it fails.** The water, the
+	/// climate, the rivers and the pins are unchanged: realms do not depend on them, so nothing is made again.
+	public func adding(_ layer: RealmLayer) throws -> WaterMap {
+		WaterMap(land: try land.adding(layer), settings: settings, geography: geography, temperature: temperature, precipitation: precipitation, packed: packed, features: features, flux: flux, riverIds: riverIds, confluence: confluence, rivers: rivers)
+	}
+
 	// MARK: Saving and loading
 
 	/// The map as a saved record (the exact state).

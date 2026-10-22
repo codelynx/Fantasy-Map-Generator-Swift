@@ -47,6 +47,14 @@ public enum PinLimits {
 	/// The longest memo, in characters, and also in UTF-8 bytes (a character can be many bytes).
 	public static let maximumNoteLength = 2_000
 	public static let maximumNoteBytes = 16_000
+
+	/// A memo cut to fit both limits (`maximumNoteLength` characters and `maximumNoteBytes` UTF-8 bytes), **dropping whole characters from the end** so that a
+	/// multi-part emoji is never split. A memo that already fits is returned as it is. An editor passes what is typed through this so that what it keeps can be saved.
+	public static func limiting(note: String) -> String {
+		var text = String(note.prefix(maximumNoteLength))
+		while text.utf8.count > maximumNoteBytes { text.removeLast() }
+		return text
+	}
 }
 
 public enum PinLayerError: Error, Equatable, Sendable {
