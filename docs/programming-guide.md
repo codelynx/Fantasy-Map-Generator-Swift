@@ -6,7 +6,7 @@ Requires macOS 14 or iOS 17, Swift 6. `FantasyMapCore` makes and saves maps and 
 
 ## Add it
 
-    .package(url: "https://github.com/codelynx/Fantasy-Map-Generator-Swift", from: "0.1.0")
+    .package(url: "https://github.com/codelynx/Fantasy-Map-Generator-Swift", from: "0.2.0")
 
 then add the products `FantasyMapCore` and `FantasyMapKit` to your target.
 

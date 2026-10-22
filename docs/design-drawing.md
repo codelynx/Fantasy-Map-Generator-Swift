@@ -4,7 +4,7 @@ Status: draft revised after review, 2026-10-20, for the author's approval. Desig
 
 ## What it is
 
-A second library target in this package (working name `FantasyMapKit`, undecided), separate from the core. **The core never depends on it:** a build of the core target alone must not need the drawing target, and that is to be verified (building or testing the whole package may still build the UI code). A separate package is not needed. The layer takes a `LandMap` and a style and gives a picture: a SwiftUI view for macOS and iOS, and an image.
+A second library target in this package, `FantasyMapKit` (called `FantasyMapKitUI` until 0.2.0), separate from the core, `FantasyMapCore`. **The core never depends on it:** a build of the core target alone must not need the drawing target, and that is to be verified (building or testing the whole package may still build the UI code). A separate package is not needed. The layer takes a `LandMap` and a style and gives a picture: a SwiftUI view for macOS and iOS, and an image.
 
 ## What it takes and gives
 
@@ -69,4 +69,4 @@ Rivers, biomes, realms, names and symbols (they need layers that do not exist); 
 
 Nothing here has been prototyped. The original's coastline generator was read at the level of its headers, imports and its main functions (outline, simplify, clip, displace, path), not line by line, and nothing has been ported or compared.
 
-**Naming (2026-10-21):** the SwiftUI view was first called `LandMapView`; it is now `FantasyMapView` (it also draws rivers, realms and pins), matching the package's working name. Older step pages use the new name throughout.
+**Naming (2026-10-21):** the SwiftUI view was first called `LandMapView`; it is now `FantasyMapView` (it also draws rivers, realms and pins), matching the library's name. Older step pages use the new names throughout (and, since 0.2.0, `FantasyMapCore` for the data library and `FantasyMapKit` for this one).

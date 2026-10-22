@@ -2,7 +2,7 @@
 
 Status: draft for the author's approval, 2026-10-20. Design phase: this says **what** the package is and does, not how it is built. Nothing here is built, and nothing has been tried beyond reading the original and running it in a browser.
 
-Working name: *Fantasy-Map-Generator-Swift* (the directory name). The final name is undecided; it must say that the package is **unofficial** and must not be confusable with the original project.
+Name (decided 2026-10-21): *Fantasy-Map-Generator-Swift*, with the libraries `FantasyMapCore` (the data, no UI) and `FantasyMapKit` (drawing and SwiftUI), and the demo `FantasyMapDemo`. The README says plainly that the package is **unofficial**, and the name does not claim to be the original project.
 
 ## What it is
 
